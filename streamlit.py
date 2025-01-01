@@ -18,13 +18,13 @@ def main():
     st.title("Switch Fault Detection")
 
     st.sidebar.header("Upload Your Data")
-    file = st.sidebar.file_uploader("Upload CSV or Excel file", type=["csv", "xls", "xlsx"])
+    file = st.sidebar.file_uploader("Upload CSV or Excel file", type=["csv"])
 
     if file is not None:
         if file.name.endswith("csv"):
             input_data = pd.read_csv(file)
         else:
-            input_data = pd.read_excel(file)
+            st.write("Please Upload in the CSV Format")
 
         st.write("### Input Data")
         st.write(input_data.head())
