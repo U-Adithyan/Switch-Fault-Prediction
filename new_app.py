@@ -15,6 +15,10 @@ def load_model():
 def load_shap_explainer():
     return joblib.load("shap_explainer.pkl")
 
+@st.cache_resource
+def load_scaler():
+    return joblib.load("scaler.pkl")
+
 def main():
     st.title("Switch Fault Detection")
 
@@ -26,6 +30,8 @@ def main():
             input_data = pd.read_csv(file)
         else:
             input_data = pd.read_excel(file)
+        
+        input_data = input_data[20001:40000]
 
         st.write("### Input Data")
         st.write(input_data.head())
@@ -65,17 +71,16 @@ def main():
             data[f'P{col}3'] = round((a4/T)*100)
             data[f'P{col}4'] = round((a5/T)*100)
             data[f'P{col}r'] = round((ar/T)*100)
-            data[f'P{col}m'] = np.mean(residual)
+            data[f'P{col}m'] = np.median(residual)
         
         df = pd.DataFrame(list(data.items()), columns=['Feature', 'Value'])
         st.dataframe(df, width=600, hide_index=True)
         
-        data = pd.DataFrame([data])
-        sc = StandardScaler()
-        data = pd.DataFrame(sc.fit_transform(data), columns=data.columns)
-
+        sc = load_scaler()
         model = load_model()
-
+        
+        data = pd.DataFrame(data, index=[0])
+        data = pd.DataFrame(sc.transform(data), columns=data.columns)
         predictions = model.predict(data)
         st.write("### Prediction")
         st.write(f"# {predictions[0]}")

@@ -14,22 +14,25 @@ def load_model():
 def load_shap_explainer():
     return joblib.load("shap_explainer.pkl")
 
+@st.cache_resource
+def load_scaler():
+    return joblib.load("scaler.pkl")
+
 def main():
     st.title("Switch Fault Detection")
 
     st.sidebar.header("Upload Your Data")
-    file = st.sidebar.file_uploader("Upload CSV or Excel file", type=["csv"])
+    file = st.sidebar.file_uploader("Upload CSV or Excel file", type=["csv", "xls", "xlsx"])
 
     if file is not None:
         if file.name.endswith("csv"):
             input_data = pd.read_csv(file)
         else:
-            st.write("Please Upload in the CSV Format")
+            input_data = pd.read_excel(file)
 
-        st.write("### Input Data")
         st.write(input_data.head())
         
-        sc = StandardScaler()
+        sc = load_scaler()
         data = pd.DataFrame(sc.fit_transform(input_data), columns=input_data.columns)
 
         model = load_model()
