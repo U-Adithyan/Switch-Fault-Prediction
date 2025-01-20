@@ -20,6 +20,7 @@ def load_scaler():
     return joblib.load("scaler.pkl")
 
 def main():
+    shap.initjs()
     st.title("Switch Fault Detection")
 
     st.sidebar.header("Upload Your Data")
@@ -55,8 +56,14 @@ def main():
             imf3, _ = emd.sift.get_next_imf(col_data[:, None]-imf1-imf2, **imf_opts)
             imf4, _ = emd.sift.get_next_imf(col_data[:, None]-imf1-imf2-imf3, **imf_opts)
             imf5, _ = emd.sift.get_next_imf(col_data[:, None]-imf1-imf2-imf3-imf4, **imf_opts)
-            
             residual = col_data[:, None]-imf1-imf2-imf3-imf4-imf5
+            
+            imfs_manual = np.c_[imf1, imf2, imf3, imf4, imf5, residual]
+            emd.plotting.plot_imfs(imfs_manual, cmap=True, scale_y=True)
+            plt.title(f"IMFs of {col}")
+            st.pyplot(plt.gcf())
+            plt.clf()
+            
             a1=np.sqrt(np.sum(np.array(imf1) ** 2)) / len(imf1)
             a2=np.sqrt(np.sum(np.array(imf2) ** 2)) / len(imf2)
             a3=np.sqrt(np.sum(np.array(imf3) ** 2)) / len(imf3)
@@ -73,13 +80,12 @@ def main():
             data[f'P{col}r'] = round((ar/T)*100)
             data[f'P{col}m'] = np.median(residual)
         
-        df = pd.DataFrame(list(data.items()), columns=['Feature', 'Value'])
-        st.dataframe(df, width=600, hide_index=True)
-        
         sc = load_scaler()
         model = load_model()
         
         data = pd.DataFrame(data, index=[0])
+        st.write(data.head())
+        
         data = pd.DataFrame(sc.transform(data), columns=data.columns)
         predictions = model.predict(data)
         st.write("### Prediction")
@@ -91,10 +97,15 @@ def main():
         
         shap_values = [shap_values[:,:,i] for i in range(shap_values.shape[2])]
         
-        shap.summary_plot(shap_values, data, class_names= model.classes_)
-        plt.gca().set_xlabel('Feature Importance')
-        st.pyplot(plt.gcf())
-        plt.clf()
+        predicted_class_index = 0
+        force_plot_html  = shap.force_plot(
+            explainer.expected_value[predicted_class_index], 
+            shap_values[predicted_class_index][0],           
+            data,                                    
+            feature_names=data.columns,
+            matplotlib=False           
+        ).html()
+        st.components.v1.html(force_plot_html, height=500)
         
 if __name__ == "__main__":
     main()
