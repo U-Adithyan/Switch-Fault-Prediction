@@ -97,13 +97,17 @@ def main():
         shap_values = [shap_values[:,:,i] for i in range(shap_values.shape[2])]
         
         predicted_class_index = 0
+        temp_file = "shap_force_plot.html"
         force_plot_html  = shap.force_plot(
             explainer.expected_value[predicted_class_index], 
             shap_values[predicted_class_index][0],           
             data,                                    
             feature_names=data.columns,
             matplotlib=False           
-        ).html()
+        ).save_html(temp_file)
+
+        with open(temp_file, "r", encoding="utf-8") as f:
+            force_plot_html = f.read()
         st.components.v1.html(force_plot_html, height=500)
         
 if __name__ == "__main__":
