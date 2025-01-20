@@ -20,7 +20,6 @@ def load_scaler():
     return joblib.load("scaler.pkl")
 
 def main():
-    # shap.initjs()
     st.title("Switch Fault Detection")
 
     st.sidebar.header("Upload Your Data")
@@ -108,4 +107,5 @@ def main():
         st.components.v1.html(force_plot_html, height=500)
         
 if __name__ == "__main__":
+    shap.initjs()
     main()
