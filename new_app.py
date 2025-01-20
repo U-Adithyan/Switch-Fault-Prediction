@@ -20,7 +20,7 @@ def load_scaler():
     return joblib.load("scaler.pkl")
 
 def main():
-    shap.initjs()
+    # shap.initjs()
     st.title("Switch Fault Detection")
 
     st.sidebar.header("Upload Your Data")
