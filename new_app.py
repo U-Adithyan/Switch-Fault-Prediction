@@ -96,7 +96,7 @@ def main():
         
         shap_values = [shap_values[:,:,i] for i in range(shap_values.shape[2])]
         
-        predicted_class_index = 0
+        predicted_class_index = model.classes_.tolist().index(predictions[0])
         temp_file = "shap_force_plot.html"
         force_plot = shap.force_plot(
             explainer.expected_value[predicted_class_index], 
