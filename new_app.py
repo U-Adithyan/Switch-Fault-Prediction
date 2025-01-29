@@ -63,7 +63,7 @@ def main():
             
             imfs_manual = np.c_[imf1, imf2, imf3, imf4, imf5, residual]
             emd.plotting.plot_imfs(imfs_manual, cmap=True, scale_y=True)
-            plt.title(f"IMFs of {col}")
+            plt.title(f"IMFs of Phase {col}")
             st.pyplot(plt.gcf())
             plt.clf()
             
