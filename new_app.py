@@ -15,9 +15,9 @@ def load_model():
 def load_shap_explainer():
     return joblib.load("shap_explainer.pkl")
 
-@st.cache_resource
-def load_scaler():
-    return joblib.load("scaler.pkl")
+#@st.cache_resource
+#def load_scaler():
+#    return joblib.load("scaler.pkl")
 
 def main():
     st.title("Switch Fault Detection")
@@ -34,7 +34,14 @@ def main():
         input_data = input_data[20001:40000]
 
         st.write("### Input Data")
-        st.write(input_data.head())
+        input_data.rename(columns={"Var2_1": "A", "Var2_2": "B", "Var2_3": "C"}, inplace=True)
+        input_data = input_data[["A", "B", "C"]]
+        
+        for col in input_data.columns:
+            col_data = input_data[col].to_numpy().ravel()
+            plt.plot(col_data)
+            plt.title(f'Phase {col}')
+            st.pyplot(plt.gcf())
         
         st.write("### Feature Extraction")
         
@@ -42,9 +49,6 @@ def main():
         config['imf_opts/sd_thresh'] = 0.05
         config['extrema_opts/method'] = 'rilling'
         imf_opts = config['imf_opts']
-        
-        input_data.rename(columns={"Var2_1": "A", "Var2_2": "B", "Var2_3": "C"}, inplace=True)
-        input_data = input_data[["A", "B", "C"]]
         
         data = {}
         
@@ -79,13 +83,13 @@ def main():
             data[f'P{col}r'] = round((ar/T)*100)
             data[f'P{col}m'] = np.median(residual)
         
-        sc = load_scaler()
+        #sc = load_scaler()
         model = load_model()
         
         data = pd.DataFrame(data, index=[0])
         st.write(data.head())
         
-        data = pd.DataFrame(sc.transform(data), columns=data.columns)
+        #data = pd.DataFrame(sc.transform(data), columns=data.columns)
         predictions = model.predict(data)
         st.write("### Prediction")
         st.write(f"# {predictions[0]}")
