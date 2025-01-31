@@ -40,6 +40,8 @@ def main():
         for col in input_data.columns:
             col_data = input_data[col].to_numpy().ravel()
             plt.plot(col_data, label=f'Phase {col}')
+        plt.xlabel("Time")
+        plt.ylabel("Current")
         plt.legend()
         st.pyplot(plt.gcf())
         
